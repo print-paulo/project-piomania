@@ -5,7 +5,7 @@ public class SliderObject : MonoBehaviour
     [Header("Note Data")]
     public float noteTime;
     public float endTime;
-    public float scrollSpeed;
+    public float scrollSpeed = 10f;
 
     [Header("Visual Adjustments (Positive values)")]
     // If body needs to start slightly above head center, increase this
@@ -14,7 +14,7 @@ public class SliderObject : MonoBehaviour
     // Use this to stretch or shrink the body to fit the tail
     public float bodyHeightCorrection = 0f;
 
-    private float judgementLineY = -4f; // Make sure this matches your Lane
+    private const float judgementLineY = -4f; // Make sure this matches your Lane
     private float spawnY;
     private float holdDuration;
 

@@ -8,8 +8,13 @@ public class Lane : MonoBehaviour
     public Transform noteSpawnPoint;
     public GameObject notePrefab; // Normal note prefab
     public GameObject sliderPrefab; // Slider prefab
-    public float judgementLineY = -4f;
-    public float errorMargin = 0.5f;
+    public float judgementLineY;
+    private const float errorMarginMiss = 1f;
+    private const float errorMarginGood = 0.75f;
+    private const float errorMarginGreat = 0.5f;
+    private const float errorMarginPerfect = 0.25f;
+    private const float errorMarginLimiter = 3f;
+
     public float missThresholdY = -6f;
 
     private bool isKeyHeld = false;
@@ -45,6 +50,14 @@ public class Lane : MonoBehaviour
                     if (slider == null || !slider.HasStarted())
                     {
                         // Miss detected
+                        Debug.Log("Missed note.");
+                        if (GameManager.instance != null)
+                        {
+
+                            GameManager.instance.ResetCombo();
+                            GameManager.instance.AddScore(0);
+                            GameManager.instance.RecordHit("Miss");
+                        }
                     }
 
                     notesOnLane.RemoveAt(0);
@@ -93,13 +106,55 @@ public class Lane : MonoBehaviour
             // For sliders, check if head is at judgement line
             float distance = Mathf.Abs(slider.GetHeadPosition().y - judgementLineY);
 
-            if (distance < errorMargin)
+            if (distance <= errorMarginMiss)
             {
                 slider.StartHold();
 
+                if (distance <= errorMarginPerfect)
+                {
+                    // Perfect
+                    if (GameManager.instance != null)
+                    {
+                        GameManager.instance.AddCombo();
+                        GameManager.instance.AddScore(300); // Partial score for starting
+                        GameManager.instance.RecordHit("Perfect");
+                    }
+                }
+                else if (distance <= errorMarginGreat)
+                {
+                    // Great
+                    if (GameManager.instance != null)
+                    {
+                        GameManager.instance.AddCombo();
+                        GameManager.instance.AddScore(200);
+                        GameManager.instance.RecordHit("Great");
+                    }
+                }
+                else if (distance <= errorMarginGood)
+                {
+                    // Good
+                    if (GameManager.instance != null)
+                    {
+                        GameManager.instance.AddCombo();
+                        GameManager.instance.AddScore(100);
+                        GameManager.instance.RecordHit("Good");
+                    }
+                }
+            }
+            else if (distance >= errorMarginLimiter)
+            {
+                // Too far for hit, but within limiter - do nothing
+            }
+            else
+            {
+                // Miss
+                Debug.Log("Missed slider note.");
                 if (GameManager.instance != null)
                 {
-                    GameManager.instance.AddScore(50); // Partial score for starting
+                    
+                    GameManager.instance.ResetCombo();
+                    GameManager.instance.AddScore(0);
+                    GameManager.instance.RecordHit("Miss");
                 }
             }
         }
@@ -108,18 +163,60 @@ public class Lane : MonoBehaviour
             // Normal note logic
             float distance = Mathf.Abs(targetNote.transform.position.y - judgementLineY);
 
-            if (distance < errorMargin)
+            if (distance <= errorMarginMiss)
             {
-                if (GameManager.instance != null)
+                if (distance <= errorMarginPerfect)
                 {
-                    GameManager.instance.AddScore(100);
+                    // Perfect
+                    if (GameManager.instance != null)
+                    {
+                        GameManager.instance.AddCombo();
+                        GameManager.instance.AddScore(300); // Partial score for starting
+                        GameManager.instance.RecordHit("Perfect");
+                    }
+                }
+                else if (distance <= errorMarginGreat)
+                {
+                    // Great
+                    if (GameManager.instance != null)
+                    {
+                        GameManager.instance.AddCombo();
+                        GameManager.instance.AddScore(200);
+                        GameManager.instance.RecordHit("Great");
+                    }
+                }
+                else if (distance <= errorMarginGood)
+                {
+                    // Good
+                    if (GameManager.instance != null)
+                    {
+                        GameManager.instance.AddCombo();
+                        GameManager.instance.AddScore(100);
+                        GameManager.instance.RecordHit("Good");
+                    }
                 }
 
                 notesOnLane.RemoveAt(0);
                 Destroy(targetNote);
             }
+            else if (distance >= errorMarginLimiter)
+            {
+                // Too far for hit, but within limiter - do nothing
+            }
+            else
+            {
+                // Miss
+                Debug.Log("Missed slider note.");
+                if (GameManager.instance != null)
+                {
+                    GameManager.instance.ResetCombo();
+                    GameManager.instance.AddScore(0);
+                    GameManager.instance.RecordHit("Miss");
+                }
+            }
         }
     }
+
 
     void UpdateSliderHold()
     {

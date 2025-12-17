@@ -3,7 +3,7 @@ using UnityEngine;
 public class NoteObject : MonoBehaviour
 {
     public float noteTime;
-    public float scrollSpeed = 5f; // Default safety value
+    public float scrollSpeed;
 
     // Set this equal to your Lane's judgement line (e.g. -3 or -4)
     private float judgementLineY = -4f;
