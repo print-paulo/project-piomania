@@ -8,12 +8,13 @@ public class Lane : MonoBehaviour
     public Transform noteSpawnPoint;
     public GameObject notePrefab; // Normal note prefab
     public GameObject sliderPrefab; // Slider prefab
-    public float judgementLineY;
-    private const float errorMarginMiss = 1f;
-    private const float errorMarginGood = 0.75f;
-    private const float errorMarginGreat = 0.5f;
-    private const float errorMarginPerfect = 0.25f;
-    private const float errorMarginLimiter = 3f;
+    public float judgementLineY; // Y position of the judgement line
+    private const float errorMarginRelease = 0.15f; // For slider release timing
+    private const float errorMarginMiss = 1f; // General miss margin
+    private const float errorMarginGood = 0.75f; // Good hit margin
+    private const float errorMarginGreat = 0.5f; // Great hit margin
+    private const float errorMarginPerfect = 0.25f; // Perfect hit margin
+    private const float errorMarginLimiter = 3f; // Limiter to ignore notes too far away
 
     public float missThresholdY = -6f;
 
@@ -51,13 +52,7 @@ public class Lane : MonoBehaviour
                     {
                         // Miss detected
                         Debug.Log("Missed note.");
-                        if (GameManager.instance != null)
-                        {
-
-                            GameManager.instance.ResetCombo();
-                            GameManager.instance.AddScore(0);
-                            GameManager.instance.RecordHit("Miss");
-                        }
+                        OnMiss();
                     }
 
                     notesOnLane.RemoveAt(0);
@@ -113,32 +108,17 @@ public class Lane : MonoBehaviour
                 if (distance <= errorMarginPerfect)
                 {
                     // Perfect
-                    if (GameManager.instance != null)
-                    {
-                        GameManager.instance.AddCombo();
-                        GameManager.instance.AddScore(300); // Partial score for starting
-                        GameManager.instance.RecordHit("Perfect");
-                    }
+                    OnHit(300, "Perfect");
                 }
                 else if (distance <= errorMarginGreat)
                 {
                     // Great
-                    if (GameManager.instance != null)
-                    {
-                        GameManager.instance.AddCombo();
-                        GameManager.instance.AddScore(200);
-                        GameManager.instance.RecordHit("Great");
-                    }
+                    OnHit(200, "Great");
                 }
                 else if (distance <= errorMarginGood)
                 {
                     // Good
-                    if (GameManager.instance != null)
-                    {
-                        GameManager.instance.AddCombo();
-                        GameManager.instance.AddScore(100);
-                        GameManager.instance.RecordHit("Good");
-                    }
+                    OnHit(100, "Good");
                 }
             }
             else if (distance >= errorMarginLimiter)
@@ -149,13 +129,7 @@ public class Lane : MonoBehaviour
             {
                 // Miss
                 Debug.Log("Missed slider note.");
-                if (GameManager.instance != null)
-                {
-                    
-                    GameManager.instance.ResetCombo();
-                    GameManager.instance.AddScore(0);
-                    GameManager.instance.RecordHit("Miss");
-                }
+                OnMiss();
             }
         }
         else
@@ -168,32 +142,17 @@ public class Lane : MonoBehaviour
                 if (distance <= errorMarginPerfect)
                 {
                     // Perfect
-                    if (GameManager.instance != null)
-                    {
-                        GameManager.instance.AddCombo();
-                        GameManager.instance.AddScore(300); // Partial score for starting
-                        GameManager.instance.RecordHit("Perfect");
-                    }
+                    OnHit(300, "Perfect");
                 }
                 else if (distance <= errorMarginGreat)
                 {
                     // Great
-                    if (GameManager.instance != null)
-                    {
-                        GameManager.instance.AddCombo();
-                        GameManager.instance.AddScore(200);
-                        GameManager.instance.RecordHit("Great");
-                    }
+                    OnHit(200, "Great");
                 }
                 else if (distance <= errorMarginGood)
                 {
                     // Good
-                    if (GameManager.instance != null)
-                    {
-                        GameManager.instance.AddCombo();
-                        GameManager.instance.AddScore(100);
-                        GameManager.instance.RecordHit("Good");
-                    }
+                    OnHit(100, "Good");
                 }
 
                 notesOnLane.RemoveAt(0);
@@ -207,12 +166,7 @@ public class Lane : MonoBehaviour
             {
                 // Miss
                 Debug.Log("Missed slider note.");
-                if (GameManager.instance != null)
-                {
-                    GameManager.instance.ResetCombo();
-                    GameManager.instance.AddScore(0);
-                    GameManager.instance.RecordHit("Miss");
-                }
+                OnMiss();
             }
         }
     }
@@ -230,7 +184,7 @@ public class Lane : MonoBehaviour
             // Check if slider is complete
             float songPos = Conductor.instance.songPosition;
 
-            if (songPos >= slider.endTime - 0.05f) // Small tolerance
+            if (songPos >= slider.endTime - 0.01f) // Small tolerance
             {
                 if (GameManager.instance != null)
                 {
@@ -255,16 +209,62 @@ public class Lane : MonoBehaviour
         {
             float songPos = Conductor.instance.songPosition;
 
-            // Check if released too early
-            if (songPos < slider.endTime - 0.1f) // 0.1s tolerance
+            float difference = Mathf.Abs(songPos - slider.endTime);
+
+            // Check if missed
+            if (songPos <= slider.endTime - errorMarginRelease)
             {
+                Debug.Log("Released slider too early - Miss.");
+                OnMiss();
                 notesOnLane.RemoveAt(0);
                 Destroy(slider.gameObject);
             }
-            else
+            else // Released on time
             {
-                slider.ReleaseHold();
+                Debug.Log("Successful slider release.");
+                if (difference <= errorMarginPerfect)
+                {
+                    // Perfect
+                    OnHit(300, "Perfect");
+                    slider.ReleaseHold();
+                    Destroy(slider.gameObject);
+                }
+                else if (difference <= errorMarginGreat)
+                {
+                    // Great
+                    OnHit(200, "Great");
+                    slider.ReleaseHold();
+                    Destroy(slider.gameObject);
+                }
+                else if (difference <= errorMarginGood)
+                {
+                    // Good
+                    OnHit(100, "Good");
+                    slider.ReleaseHold();
+                    Destroy(slider.gameObject);
+                }
             }
+
+        }
+    }
+
+    void OnHit(int score, string hitType)
+    {
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.AddCombo();
+            GameManager.instance.AddScore(score);
+            GameManager.instance.RecordHit(hitType);
+        }
+    }
+
+    void OnMiss()
+    {
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.ResetCombo();
+            GameManager.instance.AddScore(0);
+            GameManager.instance.RecordHit("Miss");
         }
     }
 

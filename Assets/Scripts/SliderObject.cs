@@ -75,7 +75,7 @@ public class SliderObject : MonoBehaviour
         }
 
         // Destroy if finished (passed end time + margin)
-        if (songPos > endTime + 0.5f)
+        if (songPos > endTime + 1f)
         {
             Destroy(gameObject);
         }
