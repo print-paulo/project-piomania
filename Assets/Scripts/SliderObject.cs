@@ -2,78 +2,49 @@ using UnityEngine;
 
 public class SliderObject : MonoBehaviour
 {
-    public float noteTime; // Start time of the hold
-    public float endTime; // End time of the hold
-    public float scrollSpeed = 10f;
+    [Header("Note Data")]
+    public float noteTime;
+    public float endTime;
+    public float scrollSpeed;
 
-    private float judgementLineY = -4f;
+    [Header("Visual Adjustments (Positive values)")]
+    // If body needs to start slightly above head center, increase this
+    public float bodyStartOffset = 0f;
+
+    // Use this to stretch or shrink the body to fit the tail
+    public float bodyHeightCorrection = 0f;
+
+    private float judgementLineY = -4f; // Make sure this matches your Lane
     private float spawnY;
+    private float holdDuration;
 
-    // Visual components (these should be CHILDREN of this GameObject)
-    public Transform sliderHead; // The hit circle at the top
-    public Transform sliderBody; // The elongated body
-    public Transform sliderTail; // The end circle
+    public Transform sliderHead;
+    public Transform sliderBody;
+    public Transform sliderTail;
 
+    // Internal states
     private bool isHolding = false;
     private bool hasStarted = false;
-    private float holdDuration;
 
     void Start()
     {
         spawnY = transform.position.y;
         holdDuration = endTime - noteTime;
 
-        // Calculate speed based on Conductor's travel time
+        // Calculate speed if Conductor is present
         if (Conductor.instance != null && Conductor.instance.noteTravelTime > 0)
         {
             float totalDistance = spawnY - judgementLineY;
             scrollSpeed = totalDistance / Conductor.instance.noteTravelTime;
         }
 
-        // DEBUG: Check if references are assigned
-        Debug.Log($"[SLIDER START] Head={sliderHead != null}, Body={sliderBody != null}, Tail={sliderTail != null}");
-        Debug.Log($"[SLIDER START] SpawnY={spawnY}, ScrollSpeed={scrollSpeed}, Duration={holdDuration:F2}s");
-        Debug.Log($"[SLIDER START] Position={transform.position}");
-
-        // Make sure all parts are active
-        if (sliderHead != null) sliderHead.gameObject.SetActive(true);
-        if (sliderBody != null) sliderBody.gameObject.SetActive(true);
-        if (sliderTail != null) sliderTail.gameObject.SetActive(true);
-
-        // Setup initial local positions for the slider parts
-        SetupSliderParts();
-    }
-
-    void SetupSliderParts()
-    {
-        float visualLength = holdDuration * scrollSpeed;
-
-        // FIXED VALUES - Adjust these to match your sprites
-        float headOffset = 0f; // Distance from head center to where body should start
-        float tailOffset = 0.288f; // Distance from body end to tail center
-
-        // Position Head at local (0, 0, 0) - this is where we hit (at parent position)
-        if (sliderHead != null)
-        {
-            sliderHead.localPosition = Vector3.zero;
-        }
-
-        // Position Body starting after the head offset
+        // Ensure Body uses Bottom Pivot
         if (sliderBody != null)
         {
-            float bodyCenter = headOffset + (visualLength / 2f);
-            sliderBody.localPosition = new Vector3(0, bodyCenter, 0);
-            sliderBody.localScale = new Vector3(1f, visualLength, 1f);
+            sliderBody.localRotation = Quaternion.identity;
         }
 
-        // Position Tail after body + tail offset
-        if (sliderTail != null)
-        {
-            float tailPosition = headOffset + visualLength + tailOffset;
-            sliderTail.localPosition = new Vector3(0, tailPosition, 0);
-        }
-
-        Debug.Log($"[SLIDER SETUP] HeadOffset={headOffset}, TailOffset={tailOffset}, BodyLength={visualLength:F2}, TailFinalPos={headOffset + visualLength + tailOffset:F2}");
+        UpdateVisuals(holdDuration * scrollSpeed); // Initial setup
     }
 
     void Update()
@@ -82,103 +53,97 @@ public class SliderObject : MonoBehaviour
 
         float songPos = Conductor.instance.songPosition;
 
-        if (float.IsInfinity(songPos) || float.IsNaN(songPos)) return;
-
-        // Handle holding behavior - keep slider head at judgement line
+        // If holding, lock head to judgement line
         if (isHolding)
         {
-            // Keep head clamped at judgement line
             transform.position = new Vector3(transform.position.x, judgementLineY, transform.position.z);
 
-            // Optionally: shrink the slider as it's being held
-            UpdateHoldingVisuals(songPos);
+            // Calculate remaining note length
+            float remainingTime = endTime - songPos;
+            UpdateVisuals(Mathf.Max(0, remainingTime * scrollSpeed));
         }
         else
         {
-            // Move normally if not holding
-            UpdatePosition(songPos);
+            // Normal downward movement
+            float timeUntilHit = noteTime - songPos;
+            float newY = judgementLineY + (timeUntilHit * scrollSpeed);
+
+            // Lock to spawn position to prevent going to infinity
+            newY = Mathf.Min(newY, spawnY);
+
+            transform.position = new Vector3(transform.position.x, newY, transform.position.z);
         }
 
-        // Destroy if completely passed
-        if (songPos > endTime + 1f)
+        // Destroy if finished (passed end time + margin)
+        if (songPos > endTime + 0.5f)
         {
             Destroy(gameObject);
         }
     }
 
-    void UpdateHoldingVisuals(float songPos)
+    void UpdateVisuals(float currentLength)
     {
-        // Calculate how much of the slider has been consumed
-        float remaining = endTime - songPos;
-
-        if (remaining <= 0)
+        // If note is finished, hide everything
+        if (currentLength <= 0.001f)
         {
-            // Slider is complete, will be destroyed by Lane
+            if (sliderBody != null) sliderBody.gameObject.SetActive(false);
+            if (sliderTail != null) sliderTail.gameObject.SetActive(false);
             return;
         }
 
-        // FIXED VALUES - must match SetupSliderParts
-        float headOffset = -0.288f;
-        float tailOffset = 0f;
-
-        // Shrink the body and move tail down as slider is held
-        float remainingLength = Mathf.Max(remaining * scrollSpeed, 1f);
-
-        if (sliderBody != null)
+        if (sliderHead != null)
         {
-            float bodyCenter = headOffset + (remainingLength / 2f);
-            sliderBody.localPosition = new Vector3(0, bodyCenter, 0);
-            sliderBody.localScale = new Vector3(1f, remainingLength, 1f);
+            sliderHead.localPosition = Vector3.zero;
         }
 
+        // It goes to the exact point where the note ends
         if (sliderTail != null)
         {
-            float tailPosition = headOffset + remainingLength + tailOffset;
-            sliderTail.localPosition = new Vector3(0, tailPosition, 0);
+            sliderTail.gameObject.SetActive(true);
+            sliderTail.localPosition = new Vector3(0, currentLength, 0);
+        }
+
+        // Body grows from Head (0) to Tail center (currentLength)
+        if (sliderBody != null)
+        {
+            sliderBody.gameObject.SetActive(true);
+
+            // Starts at Head center
+            sliderBody.localPosition = Vector3.zero;
+
+            // Stretches to reach Tail center
+            sliderBody.localScale = new Vector3(1f, currentLength - 0.45f, 1f);
         }
     }
 
-    void UpdatePosition(float songPos)
-    {
-        if (isHolding) return; // Don't update position while holding
-
-        // Calculate head position (same logic as normal notes)
-        float timeUntilHit = noteTime - songPos;
-        float newY = judgementLineY + (timeUntilHit * scrollSpeed);
-        newY = Mathf.Min(newY, spawnY);
-
-        // Move the entire slider
-        transform.position = new Vector3(transform.position.x, newY, transform.position.z);
-    }
-
+    // Public methods called by Lane
     public void StartHold()
     {
         isHolding = true;
-        hasStarted = true;
-        Debug.Log($"[SLIDER] Started holding at songPos={Conductor.instance.songPosition:F2}");
+        hasStarted = true; // Mark that player hit the start
     }
 
     public void ReleaseHold()
     {
         isHolding = false;
-        Debug.Log($"[SLIDER] Released hold at songPos={Conductor.instance.songPosition:F2}");
     }
 
+    // Lane uses this to check if input is still held
     public bool IsHolding()
     {
         return isHolding;
     }
 
+    // Lane uses this to not destroy slider if it's already being held
     public bool HasStarted()
     {
         return hasStarted;
     }
 
-    // Helper to get head position in world space (for hit detection)
+    // Lane uses this to calculate hit distance (if Head object exists)
     public Vector3 GetHeadPosition()
     {
-        if (sliderHead != null)
-            return sliderHead.position;
+        if (sliderHead != null) return sliderHead.position;
         return transform.position;
     }
 }

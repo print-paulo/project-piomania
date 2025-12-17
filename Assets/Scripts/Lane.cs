@@ -29,18 +29,27 @@ public class Lane : MonoBehaviour
 
             // For sliders, check the head position
             SliderObject slider = firstNote.GetComponent<SliderObject>();
-            float checkY = slider != null ? slider.GetHeadPosition().y : firstNote.transform.position.y;
 
-            if (checkY < missThresholdY)
+            // Don't check miss threshold for sliders that are being held
+            if (slider != null && slider.IsHolding())
             {
-                // Check if it's a slider that wasn't hit
-                if (slider == null || !slider.HasStarted())
-                {
-                    Debug.Log("Miss (too late)!");
-                }
+                // Skip miss check for active sliders
+            }
+            else
+            {
+                float checkY = slider != null ? slider.GetHeadPosition().y : firstNote.transform.position.y;
 
-                notesOnLane.RemoveAt(0);
-                Destroy(firstNote);
+                if (checkY < missThresholdY)
+                {
+                    // Check if it's a slider that wasn't hit
+                    if (slider == null || !slider.HasStarted())
+                    {
+                        // Miss detected
+                    }
+
+                    notesOnLane.RemoveAt(0);
+                    Destroy(firstNote);
+                }
             }
         }
 
@@ -86,17 +95,12 @@ public class Lane : MonoBehaviour
 
             if (distance < errorMargin)
             {
-                Debug.Log("Slider Hit! Hold the key!");
                 slider.StartHold();
 
                 if (GameManager.instance != null)
                 {
                     GameManager.instance.AddScore(50); // Partial score for starting
                 }
-            }
-            else
-            {
-                Debug.Log("Miss (out of sync)!");
             }
         }
         else
@@ -106,8 +110,6 @@ public class Lane : MonoBehaviour
 
             if (distance < errorMargin)
             {
-                Debug.Log("Hit! +100 Points");
-
                 if (GameManager.instance != null)
                 {
                     GameManager.instance.AddScore(100);
@@ -115,10 +117,6 @@ public class Lane : MonoBehaviour
 
                 notesOnLane.RemoveAt(0);
                 Destroy(targetNote);
-            }
-            else
-            {
-                Debug.Log("Miss (out of sync)!");
             }
         }
     }
@@ -137,8 +135,6 @@ public class Lane : MonoBehaviour
 
             if (songPos >= slider.endTime - 0.05f) // Small tolerance
             {
-                Debug.Log("Slider Complete! +100 Points");
-
                 if (GameManager.instance != null)
                 {
                     GameManager.instance.AddScore(100);
@@ -165,8 +161,6 @@ public class Lane : MonoBehaviour
             // Check if released too early
             if (songPos < slider.endTime - 0.1f) // 0.1s tolerance
             {
-                Debug.Log("Slider Break! Released too early!");
-
                 notesOnLane.RemoveAt(0);
                 Destroy(slider.gameObject);
             }
@@ -184,11 +178,8 @@ public class Lane : MonoBehaviour
         // Check if it's a hold note (slider)
         if (endTime > time)
         {
-            Debug.Log($"[SLIDER] Spawning slider: time={time:F2}s, endTime={endTime:F2}s, duration={endTime - time:F2}s");
-
             if (sliderPrefab == null)
             {
-                Debug.LogError("[SLIDER] SliderPrefab is NULL! Assign it in the Inspector!");
                 return;
             }
 
@@ -197,18 +188,14 @@ public class Lane : MonoBehaviour
             SliderObject sliderScript = newNote.GetComponent<SliderObject>();
             if (sliderScript == null)
             {
-                Debug.LogError("[SLIDER] SliderObject script not found on prefab!");
                 return;
             }
 
             sliderScript.noteTime = time;
             sliderScript.endTime = endTime;
-
-            Debug.Log($"[SLIDER] Slider spawned successfully at position {noteSpawnPoint.position}");
         }
         else
         {
-            Debug.Log($"[NOTE] Spawning normal note: time={time:F2}s");
             newNote = Instantiate(notePrefab, noteSpawnPoint.position, Quaternion.identity);
 
             NoteObject noteScript = newNote.GetComponent<NoteObject>();
