@@ -1,0 +1,19 @@
+# Rust
+/target
+**/*.rs.bk
+
+# Editores / SO
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Musicas com direitos autorais (nao versionar). Use musicas livres nos exemplos.
+charts/**/*.mp3
+charts/**/*.ogg
+charts/**/*.wav
+charts/**/*.flac
+!charts/example/*.ogg
+
+.vs/
