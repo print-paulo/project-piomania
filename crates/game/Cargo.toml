@@ -7,3 +7,4 @@ description = "Executável do jogo (janela, input, render, áudio)"
 [dependencies]
 rhythm-core = { workspace = true }
 rhythm-chart = { workspace = true }
+macroquad = { workspace = true }
