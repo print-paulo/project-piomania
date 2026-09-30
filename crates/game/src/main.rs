@@ -7,7 +7,7 @@ use rhythm_core::JudgementWindows;
 
 fn window_conf() -> Conf {
     Conf {
-        window_title: "Rhythm (em construção)".to_owned(),
+        window_title: "piomania (em construção)".to_owned(),
         window_width: 1280,
         window_height: 720,
         ..Default::default()
@@ -17,7 +17,7 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     let text = std::fs::read_to_string("charts/example/chart.json")
-        .expect("rode o jogo a partir da raiz do repositório (cargo run -p rhythm-game)");
+        .expect("rode o jogo a partir da raiz do repositório (cargo run -p piomania)");
     let chart = Chart::from_json(&text).expect("chart inválido");
     let windows = JudgementWindows::default();
 

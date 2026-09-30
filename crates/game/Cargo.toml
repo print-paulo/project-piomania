@@ -1,5 +1,5 @@
 [package]
-name = "rhythm-game"
+name = "piomania"
 version.workspace = true
 edition.workspace = true
 description = "Executável do jogo (janela, input, render, áudio)"

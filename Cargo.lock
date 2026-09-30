@@ -250,6 +250,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "piomania"
+version = "0.1.0"
+dependencies = [
+ "macroquad",
+ "rhythm-chart",
+ "rhythm-core",
+]
+
+[[package]]
 name = "png"
 version = "0.17.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -297,15 +306,6 @@ dependencies = [
 [[package]]
 name = "rhythm-core"
 version = "0.1.0"
-
-[[package]]
-name = "rhythm-game"
-version = "0.1.0"
-dependencies = [
- "macroquad",
- "rhythm-chart",
- "rhythm-core",
-]
 
 [[package]]
 name = "serde"

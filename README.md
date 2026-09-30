@@ -15,7 +15,7 @@ Precisa de Rust recente (instale com [rustup](https://rustup.rs)).
 
 ```bash
 cargo test                    # testes do núcleo e do formato de chart
-cargo run -p rhythm-game      # abre o jogo (rode da raiz do repositório)
+cargo run -p piomania      # abre o jogo (rode da raiz do repositório)
 ```
 
 ## Estrutura (workspace do Cargo)
@@ -23,7 +23,7 @@ cargo run -p rhythm-game      # abre o jogo (rode da raiz do repositório)
 Um **workspace** é um repositório com vários crates (pacotes Rust) que compartilham o mesmo `Cargo.lock` e a mesma pasta `target/`. Cada crate compila separadamente e só enxerga os que declarar como dependência.
 
 ```
-rhythm-game/
+piomania/
 ├── Cargo.toml            # raiz do workspace + versões das dependências
 ├── crates/
 │   ├── core/             # regras: janelas de julgamento e score (sem render/áudio)
