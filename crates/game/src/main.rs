@@ -46,7 +46,7 @@ async fn main() {
 
         draw_text(
             format!(
-                "{} — {}  |  {} notas ({} julgamentos)  |  Perfect ±{:.0} ms",
+                "{} - {}  |  {} notas ({} julgamentos)  |  Perfect ±{:.0} ms",
                 chart.metadata.title,
                 chart.metadata.difficulty_name,
                 chart.notes.len(),
