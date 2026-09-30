@@ -1,0 +1,39 @@
+name: CI
+
+# Roda em todo push na main e em todo Pull Request.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      # O Macroquad precisa de bibliotecas de áudio do sistema para compilar no Linux.
+      - name: Dependências do sistema
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev pkg-config
+
+      - name: Instalar Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      # Guarda as dependências compiladas entre execuções (deixa o CI bem mais rápido).
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Formatação (cargo fmt)
+        run: cargo fmt --all --check
+
+      - name: Lint (cargo clippy)
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Testes (cargo test)
+        run: cargo test --workspace

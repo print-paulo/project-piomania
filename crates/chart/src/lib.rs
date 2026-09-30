@@ -142,9 +142,18 @@ pub struct Event {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum EventKind {
-    Flash { duration_ms: f64, color: [f32; 3] },
-    Shake { duration_ms: f64, intensity: f32 },
-    Palette { duration_ms: f64, background: [f32; 3] },
+    Flash {
+        duration_ms: f64,
+        color: [f32; 3],
+    },
+    Shake {
+        duration_ms: f64,
+        intensity: f32,
+    },
+    Palette {
+        duration_ms: f64,
+        background: [f32; 3],
+    },
 }
 
 #[derive(Debug)]
@@ -221,7 +230,10 @@ impl Chart {
                 return bad(format!("lane {} sem path", lane.index));
             }
             if lane.path.iter().any(|k| k.points.len() < 2) {
-                return bad(format!("lane {}: cada path precisa de ao menos 2 pontos", lane.index));
+                return bad(format!(
+                    "lane {}: cada path precisa de ao menos 2 pontos",
+                    lane.index
+                ));
             }
         }
         for (i, n) in self.notes.iter().enumerate() {
@@ -256,14 +268,22 @@ mod tests {
     #[test]
     fn rejects_note_in_missing_lane() {
         let mut chart: Chart = serde_json::from_str(EXAMPLE).unwrap();
-        chart.notes.push(Note { time_ms: 100.0, lane: 9, end_time_ms: None });
+        chart.notes.push(Note {
+            time_ms: 100.0,
+            lane: 9,
+            end_time_ms: None,
+        });
         assert!(chart.validate().is_err());
     }
 
     #[test]
     fn rejects_hold_that_ends_before_start() {
         let mut chart: Chart = serde_json::from_str(EXAMPLE).unwrap();
-        chart.notes.push(Note { time_ms: 500.0, lane: 0, end_time_ms: Some(400.0) });
+        chart.notes.push(Note {
+            time_ms: 500.0,
+            lane: 0,
+            end_time_ms: Some(400.0),
+        });
         assert!(chart.validate().is_err());
     }
 }
