@@ -1,0 +1,9 @@
+[package]
+name = "rhythm-chart"
+version.workspace = true
+edition.workspace = true
+description = "Formato de chart em JSON: estruturas, leitura e validação"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
