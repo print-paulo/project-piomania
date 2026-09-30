@@ -5,12 +5,12 @@ Prefixos de tarefa: `M0`, `M1`... (marcos) + número.
 
 ## M0 — Fundação (repo e setup)
 
-- [ ] M0-1 Workspace do Cargo com `core`, `chart`, `game`
-- [ ] M0-2 Janelas de julgamento e score com testes
-- [ ] M0-3 Formato de chart v1 com leitura e validação
-- [ ] M0-4 Criar repositório no GitHub, configurar `main` protegida e board do Projects
-- [ ] M0-5 CI no GitHub Actions: `cargo fmt --check`, `cargo clippy`, `cargo test`
-- [ ] M0-6 Rodar `cargo run -p piomania` e confirmar a janela abrindo
+- [x] M0-1 Workspace do Cargo com `core`, `chart`, `game`
+- [x] M0-2 Janelas de julgamento e score com testes
+- [x] M0-3 Formato de chart v1 com leitura e validação
+- [x] M0-4 Criar repositório no GitHub, configurar `main` protegida e board do Projects
+- [x] M0-5 CI no GitHub Actions: `cargo fmt --check`, `cargo clippy`, `cargo test`
+- [x] M0-6 Rodar `cargo run -p piomania` e confirmar a janela abrindo
 
 ## M1 — MVP 4K (uma música, linha reta)
 
