@@ -1,0 +1,18 @@
+[workspace]
+resolver = "2"
+members = ["crates/core", "crates/chart", "crates/game"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+
+# Versões das dependências ficam centralizadas aqui.
+# Cada crate usa `serde = { workspace = true }` e afins.
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+macroquad = "0.4"
+
+# Crates internos
+rhythm-core = { path = "crates/core" }
+rhythm-chart = { path = "crates/chart" }
