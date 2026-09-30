@@ -45,7 +45,7 @@ async fn main() {
         draw_line(lx - 0.3 * unit, ly, lx + 0.3 * unit, ly, 4.0, WHITE);
 
         draw_text(
-            &format!(
+            format!(
                 "{} — {}  |  {} notas ({} julgamentos)  |  Perfect ±{:.0} ms",
                 chart.metadata.title,
                 chart.metadata.difficulty_name,
