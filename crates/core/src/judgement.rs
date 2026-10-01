@@ -1,9 +1,9 @@
-//! Janelas de julgamento, inspiradas no osu!mania.
+//! Judgement windows, inspired by osu!mania.
 //!
-//! Convenção: `delta_ms = tempo_do_input - tempo_da_nota`.
-//! Negativo = cedo, positivo = tarde.
+//! Convention: `delta_ms = input_time - note_time`.
+//! Negative = early, positive = late.
 
-/// Resultado de um julgamento.
+/// Result of a judgement.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Judgement {
     Perfect,
@@ -12,22 +12,22 @@ pub enum Judgement {
     Miss,
 }
 
-/// Janelas de acerto em milissegundos (metade da janela: vale para cedo e tarde).
+/// Hit windows in milliseconds (half-width: applies to both early and late hits).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct JudgementWindows {
     pub perfect_ms: f64,
     pub great_ms: f64,
     pub good_ms: f64,
-    /// Além de `good_ms` e até aqui, apertar cedo demais conta como Miss.
-    /// Mais cedo que isso, o input é ignorado (nota ainda longe).
+    /// Beyond `good_ms` and up to this value, pressing too early counts as a Miss.
+    /// Earlier than that, the input is ignored (the note is still far away).
     pub miss_ms: f64,
-    /// Multiplicador das janelas ao soltar um hold (a soltura costuma ser mais permissiva).
+    /// Window multiplier when releasing a hold (releases are usually more lenient).
     pub release_multiplier: f64,
 }
 
 impl JudgementWindows {
-    /// Valores baseados na fórmula do osu!mania em função do OD (Overall Difficulty).
-    /// TODO: conferir os números com a wiki do osu! e ajustar nos playtests.
+    /// Values based on the osu!mania formula as a function of OD (Overall Difficulty).
+    /// TODO: double-check these numbers against the osu! wiki and tune them in playtests.
     pub fn from_od(od: f64) -> Self {
         Self {
             perfect_ms: 64.0 - 3.0 * od,
@@ -38,8 +38,8 @@ impl JudgementWindows {
         }
     }
 
-    /// Julga o toque numa nota (ou na cabeça de um hold).
-    /// Retorna `None` se ainda está cedo demais e o input deve ser ignorado.
+    /// Judges a press on a note (or on a hold head).
+    /// Returns `None` if it is still too early and the input should be ignored.
     pub fn judge_press(&self, delta_ms: f64) -> Option<Judgement> {
         let d = delta_ms.abs();
         if d <= self.perfect_ms {
@@ -55,7 +55,7 @@ impl JudgementWindows {
         }
     }
 
-    /// Julga a soltura de um hold (sempre devolve um julgamento).
+    /// Judges the release of a hold (always returns a judgement).
     pub fn judge_release(&self, delta_ms: f64) -> Judgement {
         let d = delta_ms.abs();
         let m = self.release_multiplier;
@@ -70,7 +70,7 @@ impl JudgementWindows {
         }
     }
 
-    /// `true` quando a nota passou tanto do tempo que vira Miss automático.
+    /// `true` when the note is so late that it becomes an automatic Miss.
     pub fn is_expired(&self, delta_ms: f64) -> bool {
         delta_ms > self.good_ms
     }
@@ -109,7 +109,7 @@ mod tests {
     #[test]
     fn release_is_more_lenient() {
         let w = JudgementWindows::default();
-        // 50 ms seria Great num toque, mas na soltura ainda é Perfect (40 * 1.5 = 60).
+        // 50 ms would be Great on a press, but on a release it is still Perfect (40 * 1.5 = 60).
         assert_eq!(w.judge_release(50.0), Judgement::Perfect);
         assert_eq!(w.judge_release(400.0), Judgement::Miss);
     }

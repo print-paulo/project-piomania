@@ -1,5 +1,5 @@
-//! Ponto de entrada. Por enquanto: abre a janela, lê o chart de exemplo
-//! e desenha a judgement line + as lanes em linha reta (só para validar o setup).
+//! Entry point. For now: opens the window, loads the example chart
+//! and draws the judgement line + straight lanes (just to validate the setup).
 
 use macroquad::prelude::*;
 use rhythm_chart::Chart;
@@ -7,7 +7,7 @@ use rhythm_core::JudgementWindows;
 
 fn window_conf() -> Conf {
     Conf {
-        window_title: "piomania (em construção)".to_owned(),
+        window_title: "piomania (work in progress)".to_owned(),
         window_width: 1280,
         window_height: 720,
         ..Default::default()
@@ -17,14 +17,14 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     let text = std::fs::read_to_string("charts/example/chart.json")
-        .expect("rode o jogo a partir da raiz do repositório (cargo run -p piomania)");
-    let chart = Chart::from_json(&text).expect("chart inválido");
+        .expect("run the game from the repository root (cargo run -p piomania)");
+    let chart = Chart::from_json(&text).expect("invalid chart");
     let windows = JudgementWindows::default();
 
     loop {
         clear_background(Color::new(0.04, 0.04, 0.07, 1.0));
 
-        // Unidade de coordenada: altura da tela = 1.0 (igual ao formato do chart).
+        // Coordinate unit: screen height = 1.0 (same as the chart format).
         let unit = screen_height();
         let line = &chart.judgement_lines[0].keyframes[0];
         let (lx, ly) = (line.x * screen_width(), line.y * unit);
@@ -46,7 +46,7 @@ async fn main() {
 
         draw_text(
             format!(
-                "{} - {}  |  {} notas ({} julgamentos)  |  Perfect ±{:.0} ms",
+                "{} - {}  |  {} notes ({} judgements)  |  Perfect ±{:.0} ms",
                 chart.metadata.title,
                 chart.metadata.difficulty_name,
                 chart.notes.len(),

@@ -1,57 +1,59 @@
 # Piomania
 
-Jogo de ritmo para PC que junta a precisão do **osu!mania** e do **Phigros** com os efeitos visuais de **Geometry Dash** e **ADOFAI**.
+A PC rhythm game that blends the precision of **osu!mania** and **Phigros** with the visual intensity of **Geometry Dash** and **ADOFAI**.
 
-- Notas em lanes que podem **curvar, rotacionar, aparecer/sumir e se mover ao ritmo da música**
-- Judgement lines móveis
-- Efeitos coreografados (shake, flash, troca de paleta, inversões) sincronizados com a música
-- 4K primeiro, 7K depois. Holds com soltura julgada. Score de 0 a 1.000.000
+- Notes travel along lanes that can **curve, rotate, fade in/out and move to the beat of the music**
+- Moving judgement lines
+- Choreographed effects (shake, flash, palette swaps, perspective inversions) synced to the music
+- 4K first, 7K later. Hold releases are judged. Score from 0 to 1,000,000
 
-Feito em **Rust** (Macroquad no início, com a possibilidade de migrar o render para wgpu).
+Built in **Rust** (Macroquad to start, with the option to move rendering to wgpu later).
 
-## Como rodar
+## Getting started
 
-Precisa de Rust recente (instale com [rustup](https://rustup.rs)).
+Requires a recent Rust toolchain (install with [rustup](https://rustup.rs)). On Windows you also need the Visual Studio Build Tools with the "Desktop development with C++" workload.
 
 ```bash
-cargo test                    # testes do núcleo e do formato de chart
-cargo run -p piomania      # abre o jogo (rode da raiz do repositório)
+cargo test                 # core and chart-format tests
+cargo run -p piomania      # launches the game (run from the repository root)
 ```
 
-## Estrutura (workspace do Cargo)
+## Project structure (Cargo workspace)
 
-Um **workspace** é um repositório com vários crates (pacotes Rust) que compartilham o mesmo `Cargo.lock` e a mesma pasta `target/`. Cada crate compila separadamente e só enxerga os que declarar como dependência.
+A **workspace** is a repository with several crates (Rust packages) that share one `Cargo.lock` and one `target/` folder. Each crate builds separately and only sees the crates it declares as dependencies.
 
 ```
 piomania/
-├── Cargo.toml            # raiz do workspace + versões das dependências
+├── Cargo.toml            # workspace root + shared dependency versions
 ├── crates/
-│   ├── core/             # regras: janelas de julgamento e score (sem render/áudio)
-│   ├── chart/            # formato de chart JSON: structs, leitura e validação
-│   └── game/             # executável: janela, input, render, áudio
-├── charts/example/       # chart de exemplo
-├── docs/chart-format.md  # especificação do formato
-└── KANBAN.md             # backlog inicial
+│   ├── core/             # rules: judgement windows and scoring (no render/audio)
+│   ├── chart/            # JSON chart format: structs, parsing and validation
+│   └── game/             # executable: window, input, rendering, audio
+├── charts/example/       # example chart
+└── docs/
+    ├── chart-format.md   # chart format specification
+    ├── roadmap.md        # task backlog by milestone
+    └── workflow.md       # git/PR workflow
 ```
 
-Regra de dependência (nunca no sentido contrário):
+Dependency rule (never the other way around):
 
 ```
 game  ──►  core
 game  ──►  chart
 ```
 
-`core` e `chart` não sabem que existe janela nem áudio. Isso os mantém testáveis e permite trocar o render depois. Ferramentas futuras (conversor de `.osu`, editor de charts) entram como novos crates em `tools/`.
+`core` and `chart` know nothing about windows or audio. That keeps them testable and makes it possible to swap the renderer later. Future tools (`.osu` converter, chart editor) will be added as new crates under `tools/`.
 
-## Princípios
+## Principles
 
-1. **O áudio manda no tempo.** A posição da música (conductor) é a única fonte de tempo; nada é posicionado por delta de frame.
-2. **O julgamento depende só de tempo.** A curva das lanes é visual; o acerto usa apenas o tempo da nota.
-3. **Charts são dados.** Tudo que o chart pode fazer está em JSON, sem código.
-4. **Configurável.** Janelas de julgamento e pesos do score ficam em constantes/config fáceis de ajustar.
+1. **Audio drives time.** The song position (the conductor) is the only source of time; nothing is positioned using frame deltas.
+2. **Judgement depends on time only.** Lane curves are visual; hit detection uses only the note's time.
+3. **Charts are data.** Everything a chart can do is expressed in JSON, with no code.
+4. **Configurable.** Judgement windows and score weights live in constants/config that are easy to tune.
 
-## Convenções de git
+## Git conventions
 
-- Branch principal: `main`. Trabalho em branches `feat/`, `fix/`, `docs/`.
-- Commits no estilo: `feat(core): adiciona janela de release`.
-- Uma tarefa do kanban = uma branch = um PR (mesmo trabalhando sozinho, o histórico fica limpo).
+- Main branch: `main`. Work happens in `feat/`, `fix/`, `docs/` and `chore/` branches.
+- Commit style: `feat(core): add release window`.
+- One roadmap task = one branch = one PR (even when working solo, it keeps the history clean).

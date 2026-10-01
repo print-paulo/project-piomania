@@ -6,13 +6,13 @@ members = ["crates/core", "crates/chart", "crates/game"]
 version = "0.1.0"
 edition = "2021"
 
-# Versões das dependências ficam centralizadas aqui.
-# Cada crate usa `serde = { workspace = true }` e afins.
+# Dependency versions are centralized here.
+# Each crate uses `serde = { workspace = true }` and so on.
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 macroquad = "0.4"
 
-# Crates internos
+# Internal crates
 rhythm-core = { path = "crates/core" }
 rhythm-chart = { path = "crates/chart" }

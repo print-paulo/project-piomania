@@ -1,46 +1,46 @@
-# Formato de chart (versão 1)
+# Chart format (version 1)
 
-Arquivo JSON. Tempos em **milissegundos** relativos ao início do áudio. Coordenadas em unidades onde **altura da tela = 1.0** (x cresce para a direita, y cresce para baixo). O chart de referência está em `charts/example/chart.json`.
+A JSON file. Times are in **milliseconds** relative to the start of the audio. Coordinates use units where **screen height = 1.0** (x grows to the right, y grows downward). The reference chart is `charts/example/chart.json`.
 
-## Campos principais
+## Main fields
 
-| Campo             | Descrição                                                             |
-| ----------------- | --------------------------------------------------------------------- |
-| `format_version`  | Sempre `1` por enquanto.                                              |
-| `metadata`        | `title`, `artist`, `charter`, `difficulty_name`, `keys` (4 ou 7).     |
-| `audio`           | `file` e `offset_ms` (ajuste fixo do áudio).                          |
-| `timing`          | Lista de `{ time_ms, bpm }`. Ao menos um ponto, em `0`.               |
-| `scroll`          | Lista de `{ time_ms, speed }`. Muda a velocidade das notas. Opcional. |
-| `judgement_lines` | Linhas de julgamento com keyframes de posição, rotação e alpha.       |
-| `lanes`           | Uma por tecla; cada uma pertence a uma line e tem um `path` animável. |
-| `notes`           | `{ time_ms, lane }`; com `end_time_ms` vira hold.                     |
-| `events`          | Efeitos: `flash`, `shake`, `palette`. Opcional.                       |
+| Field             | Description                                                       |
+| ----------------- | ----------------------------------------------------------------- |
+| `format_version`  | Always `1` for now.                                               |
+| `metadata`        | `title`, `artist`, `charter`, `difficulty_name`, `keys` (4 or 7). |
+| `audio`           | `file` and `offset_ms` (fixed audio offset).                      |
+| `timing`          | List of `{ time_ms, bpm }`. At least one point, at `0`.           |
+| `scroll`          | List of `{ time_ms, speed }`. Changes note speed. Optional.       |
+| `judgement_lines` | Judgement lines with position, rotation and alpha keyframes.      |
+| `lanes`           | One per key; each belongs to a line and has an animatable `path`. |
+| `notes`           | `{ time_ms, lane }`; adding `end_time_ms` turns it into a hold.   |
+| `events`          | Effects: `flash`, `shake`, `palette`. Optional.                   |
 
 ## Judgement lines
 
-Cada keyframe: `time_ms`, `x`, `y`, `rotation_deg` (padrão 0), `alpha` (padrão 1) e `easing`. O estado entre keyframes é interpolado usando o easing do keyframe seguinte.
+Each keyframe has `time_ms`, `x`, `y`, `rotation_deg` (default 0), `alpha` (default 1) and `easing`. The state between keyframes is interpolated using the easing of the following keyframe.
 
-## Lanes e curvas
+## Lanes and curves
 
-Cada lane tem `path`: uma lista de keyframes `{ time_ms, points, easing }`.
+Each lane has a `path`: a list of keyframes `{ time_ms, points, easing }`.
 
-- `points` são pontos de uma **curva de Bézier** no espaço local da judgement line: 2 pontos = reta, 3 = quadrática, 4 = cúbica.
-- O **primeiro ponto** é onde a nota nasce; o **último** é onde ela é julgada.
-- Entre dois keyframes, os pontos são interpolados, e por isso a curva pode mudar durante a música (ambos os keyframes devem ter o mesmo número de pontos ao interpolar).
-- `alpha` (opcional) é uma lista de `{ time_ms, alpha, easing }` para a lane aparecer e desaparecer.
+- `points` are the control points of a **Bézier curve** in the judgement line's local space: 2 points = straight, 3 = quadratic, 4 = cubic.
+- The **first point** is where the note spawns; the **last point** is where it is judged.
+- Between two keyframes the points are interpolated, so the curve can change during the song (both keyframes must have the same number of points to be interpolated).
+- `alpha` (optional) is a list of `{ time_ms, alpha, easing }` that makes the lane fade in and out.
 
-Cada nota percorre a curva da sua lane até o ponto final; a posição ao longo da curva vem da distância restante até o julgamento (que depende de BPM e scroll).
+Each note travels along its lane's curve toward the end point; its position along the curve comes from the remaining distance to the judgement (which depends on BPM and scroll).
 
 ## Easing
 
-`linear` (padrão), `in`, `out`, `in_out`, `step`.
+`linear` (default), `in`, `out`, `in_out`, `step`.
 
-## Notas
+## Notes
 
-- Nota simples: `{ "time_ms": 1000, "lane": 2 }`
-- Hold: `{ "time_ms": 1000, "lane": 2, "end_time_ms": 1500 }` (cabeça e soltura são julgadas)
+- Regular note: `{ "time_ms": 1000, "lane": 2 }`
+- Hold: `{ "time_ms": 1000, "lane": 2, "end_time_ms": 1500 }` (both the head and the release are judged)
 
-## Eventos
+## Events
 
 ```json
 { "time_ms": 3200, "type": "flash",   "duration_ms": 250, "color": [1, 1, 1] }
@@ -48,10 +48,10 @@ Cada nota percorre a curva da sua lane até o ponto final; a posição ao longo 
 { "time_ms": 9600, "type": "shake",   "duration_ms": 300, "intensity": 0.6 }
 ```
 
-## Validação
+## Validation
 
-`Chart::from_json` rejeita: `format_version` diferente, `timing` vazio, BPM ≤ 0, `keys` diferente do número de lanes, lane apontando para line inexistente, path com menos de 2 pontos, nota em lane inexistente e hold que termina antes de começar.
+`Chart::from_json` rejects: a `format_version` other than 1, an empty `timing`, BPM ≤ 0, `keys` different from the number of lanes, a lane pointing to a missing line, a path with fewer than 2 points, a note in a missing lane, and a hold that ends before it starts.
 
-## Plano de compatibilidade com osu!mania
+## osu!mania compatibility plan
 
-Um conversor (crate `tools/osu-convert`, futuro) lerá `.osu` do modo mania e gerará este JSON (notas, holds, BPM e scroll). O jogo não lê `.osu` diretamente, porque o formato do osu! não tem lanes curvas nem efeitos.
+A converter (a future `tools/osu-convert` crate) will read osu!mania `.osu` files and generate this JSON (notes, holds, BPM and scroll). The game does not read `.osu` directly, because the osu! format has no curved lanes or effects.

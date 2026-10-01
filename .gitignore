@@ -2,14 +2,14 @@
 /target
 **/*.rs.bk
 
-# Editores / SO
+# Editors / OS
 .idea/
 .vscode/
 *.swp
 .DS_Store
 Thumbs.db
 
-# Musicas com direitos autorais (nao versionar). Use musicas livres nos exemplos.
+# Copyrighted music (do not commit). Use royalty-free songs in examples.
 charts/**/*.mp3
 charts/**/*.ogg
 charts/**/*.wav

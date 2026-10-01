@@ -1,7 +1,7 @@
-//! Formato de chart do jogo (JSON, versão 1).
+//! Chart format for the game (JSON, version 1).
 //!
-//! Tudo é dado: o jogo lê o chart e reproduz. Nenhuma regra de gameplay mora aqui.
-//! Veja `docs/chart-format.md` para a descrição de cada campo.
+//! Everything here is data: the game reads the chart and plays it back. No gameplay rules live here.
+//! See `docs/chart-format.md` for a description of each field.
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -13,9 +13,9 @@ pub struct Chart {
     pub format_version: u32,
     pub metadata: Metadata,
     pub audio: Audio,
-    /// Mudanças de BPM (ao menos uma, no tempo 0).
+    /// BPM changes (at least one, at time 0).
     pub timing: Vec<TimingPoint>,
-    /// Mudanças de velocidade de scroll (opcional).
+    /// Scroll speed changes (optional).
     #[serde(default)]
     pub scroll: Vec<ScrollChange>,
     pub judgement_lines: Vec<JudgementLine>,
@@ -31,7 +31,7 @@ pub struct Metadata {
     pub artist: String,
     pub charter: String,
     pub difficulty_name: String,
-    /// Número de lanes (4 ou 7).
+    /// Number of lanes (4 or 7).
     pub keys: u8,
 }
 
@@ -62,7 +62,7 @@ pub enum Easing {
     In,
     Out,
     InOut,
-    /// Salta direto para o valor do keyframe (sem interpolar).
+    /// Jumps straight to the keyframe value (no interpolation).
     Step,
 }
 
@@ -89,8 +89,8 @@ pub struct JudgementLine {
     pub keyframes: Vec<LineKeyframe>,
 }
 
-/// Forma da lane num instante: curva de Bézier (2 pontos = reta, 3 = quadrática, 4 = cúbica)
-/// no espaço local da judgement line. O último ponto é onde a nota é julgada.
+/// Lane shape at a given moment: a Bézier curve (2 points = straight, 3 = quadratic, 4 = cubic)
+/// in the judgement line's local space. The last point is where the note is judged.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PathKeyframe {
     pub time_ms: f64,
@@ -110,7 +110,7 @@ pub struct AlphaKeyframe {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Lane {
     pub index: u8,
-    /// `id` da judgement line à qual esta lane pertence.
+    /// `id` of the judgement line this lane belongs to.
     pub line: String,
     pub path: Vec<PathKeyframe>,
     #[serde(default)]
@@ -121,7 +121,7 @@ pub struct Lane {
 pub struct Note {
     pub time_ms: f64,
     pub lane: u8,
-    /// Presente apenas em holds: tempo em que o hold termina.
+    /// Only present on holds: the time at which the hold ends.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub end_time_ms: Option<f64>,
 }
@@ -165,8 +165,8 @@ pub enum ChartError {
 impl fmt::Display for ChartError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ChartError::Parse(e) => write!(f, "JSON inválido: {e}"),
-            ChartError::Invalid(msg) => write!(f, "chart inválido: {msg}"),
+            ChartError::Parse(e) => write!(f, "invalid JSON: {e}"),
+            ChartError::Invalid(msg) => write!(f, "invalid chart: {msg}"),
         }
     }
 }
@@ -174,14 +174,14 @@ impl fmt::Display for ChartError {
 impl std::error::Error for ChartError {}
 
 impl Chart {
-    /// Lê e valida um chart a partir de texto JSON.
+    /// Parses and validates a chart from JSON text.
     pub fn from_json(text: &str) -> Result<Chart, ChartError> {
         let chart: Chart = serde_json::from_str(text).map_err(ChartError::Parse)?;
         chart.validate()?;
         Ok(chart)
     }
 
-    /// Quantidade de objetos julgados: notas simples valem 1, holds valem 2 (cabeça + soltura).
+    /// Number of judged objects: regular notes count as 1, holds count as 2 (head + release).
     pub fn total_judgements(&self) -> u32 {
         self.notes
             .iter()
@@ -194,27 +194,27 @@ impl Chart {
 
         if self.format_version != FORMAT_VERSION {
             return bad(format!(
-                "format_version {} não suportada (esperado {FORMAT_VERSION})",
+                "format_version {} is not supported (expected {FORMAT_VERSION})",
                 self.format_version
             ));
         }
         if self.timing.is_empty() {
-            return bad("`timing` precisa ter ao menos um ponto".into());
+            return bad("`timing` must have at least one point".into());
         }
         if self.timing.iter().any(|t| t.bpm <= 0.0) {
-            return bad("todo BPM precisa ser maior que zero".into());
+            return bad("every BPM must be greater than zero".into());
         }
         if self.judgement_lines.is_empty() {
-            return bad("`judgement_lines` está vazio".into());
+            return bad("`judgement_lines` is empty".into());
         }
         for line in &self.judgement_lines {
             if line.keyframes.is_empty() {
-                return bad(format!("judgement line `{}` sem keyframes", line.id));
+                return bad(format!("judgement line `{}` has no keyframes", line.id));
             }
         }
         if self.lanes.len() != self.metadata.keys as usize {
             return bad(format!(
-                "metadata.keys = {}, mas há {} lanes",
+                "metadata.keys = {}, but there are {} lanes",
                 self.metadata.keys,
                 self.lanes.len()
             ));
@@ -222,27 +222,27 @@ impl Chart {
         for lane in &self.lanes {
             if !self.judgement_lines.iter().any(|l| l.id == lane.line) {
                 return bad(format!(
-                    "lane {} aponta para a line `{}`, que não existe",
+                    "lane {} points to line `{}`, which does not exist",
                     lane.index, lane.line
                 ));
             }
             if lane.path.is_empty() {
-                return bad(format!("lane {} sem path", lane.index));
+                return bad(format!("lane {} has no path", lane.index));
             }
             if lane.path.iter().any(|k| k.points.len() < 2) {
                 return bad(format!(
-                    "lane {}: cada path precisa de ao menos 2 pontos",
+                    "lane {}: each path needs at least 2 points",
                     lane.index
                 ));
             }
         }
         for (i, n) in self.notes.iter().enumerate() {
             if n.lane >= self.metadata.keys {
-                return bad(format!("nota #{i}: lane {} fora do intervalo", n.lane));
+                return bad(format!("note #{i}: lane {} is out of range", n.lane));
             }
             if let Some(end) = n.end_time_ms {
                 if end <= n.time_ms {
-                    return bad(format!("nota #{i}: hold termina antes de começar"));
+                    return bad(format!("note #{i}: hold ends before it starts"));
                 }
             }
         }
@@ -258,7 +258,7 @@ mod tests {
 
     #[test]
     fn example_chart_parses_and_validates() {
-        let chart = Chart::from_json(EXAMPLE).expect("o chart de exemplo deve ser válido");
+        let chart = Chart::from_json(EXAMPLE).expect("the example chart must be valid");
         assert_eq!(chart.metadata.keys, 4);
         assert_eq!(chart.lanes.len(), 4);
         assert!(chart.notes.iter().any(|n| n.is_hold()));

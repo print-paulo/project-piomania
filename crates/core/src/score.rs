@@ -1,20 +1,20 @@
-//! Pontuação de 0 a 1.000.000, com foco maior em precisão que em combo.
+//! Score from 0 to 1,000,000, weighted toward accuracy over combo.
 //!
-//! - 700.000 pontos vêm da precisão (peso de cada julgamento).
-//! - 300.000 pontos vêm do combo.
+//! - 700,000 points come from accuracy (weight of each judgement).
+//! - 300,000 points come from combo.
 //!
-//! Cada "objeto julgado" conta uma vez: nota simples = 1; hold = 2 (cabeça + soltura).
-//! Modificadores (Hidden, DT...) que passam de 1.000.000 entram numa etapa futura.
+//! Each "judged object" counts once: regular note = 1; hold = 2 (head + release).
+//! Modifiers (Hidden, DT...) that push the score above 1,000,000 come in a later stage.
 
 use crate::judgement::Judgement;
 
 pub const MAX_SCORE: u32 = 1_000_000;
 pub const ACCURACY_SHARE: f64 = 700_000.0;
 pub const COMBO_SHARE: f64 = 300_000.0;
-/// Combo acima disso não aumenta mais o valor de cada acerto.
+/// Combo above this no longer increases the value of each hit.
 pub const COMBO_CAP: u32 = 100;
 
-/// Peso de cada julgamento na precisão.
+/// Weight of each judgement in the accuracy calculation.
 pub fn accuracy_weight(j: Judgement) -> f64 {
     match j {
         Judgement::Perfect => 1.0,
@@ -37,7 +37,7 @@ pub struct ScoreState {
 }
 
 impl ScoreState {
-    /// `total_objects` = notas + 2 × holds.
+    /// `total_objects` = notes + 2 × holds.
     pub fn new(total_objects: u32) -> Self {
         let ideal_combo_points = (1..=total_objects).map(|i| i.min(COMBO_CAP) as f64).sum();
         Self {
@@ -65,7 +65,7 @@ impl ScoreState {
         self.combo_points += self.combo.min(COMBO_CAP) as f64;
     }
 
-    /// Pontuação atual (0..=1.000.000), já considerando o total da música.
+    /// Current score (0..=1,000,000), relative to the song's total.
     pub fn score(&self) -> u32 {
         if self.total_objects == 0 {
             return 0;
@@ -75,7 +75,7 @@ impl ScoreState {
         ((acc + combo).round() as u32).min(MAX_SCORE)
     }
 
-    /// Precisão em % sobre o que já foi julgado.
+    /// Accuracy in % over what has been judged so far.
     pub fn accuracy_percent(&self) -> f64 {
         if self.judged == 0 {
             return 100.0;

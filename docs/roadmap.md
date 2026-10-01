@@ -1,64 +1,64 @@
-# Kanban inicial
+# Roadmap
 
-Colunas sugeridas: **Backlog → A fazer → Fazendo → Revisão/Teste → Feito**.
-Prefixos de tarefa: `M0`, `M1`... (marcos) + número.
+Suggested board columns: **Backlog → To do → Doing → Review/Test → Done**.
+Task prefixes: `M0`, `M1`... (milestones) + number.
 
-## M0 — Fundação (repo e setup)
+## M0 — Foundation (repo and setup)
 
-- [x] M0-1 Workspace do Cargo com `core`, `chart`, `game`
-- [x] M0-2 Janelas de julgamento e score com testes
-- [x] M0-3 Formato de chart v1 com leitura e validação
-- [x] M0-4 Criar repositório no GitHub, configurar `main` protegida e board do Projects
-- [x] M0-5 CI no GitHub Actions: `cargo fmt --check`, `cargo clippy`, `cargo test`
-- [x] M0-6 Rodar `cargo run -p piomania` e confirmar a janela abrindo
+- [x] M0-1 Cargo workspace with `core`, `chart`, `game`
+- [x] M0-2 Judgement windows and scoring with tests
+- [x] M0-3 Chart format v1 with parsing and validation
+- [x] M0-4 Create the GitHub repository, protect `main` and set up the Projects board
+- [x] M0-5 CI on GitHub Actions: `cargo fmt --check`, `cargo clippy`, `cargo test`
+- [x] M0-6 Run `cargo run -p piomania` and confirm the window opens
 
-## M1 — MVP 4K (uma música, linha reta)
+## M1 — 4K MVP (one song, straight lanes)
 
-- [ ] M1-1 Conductor: tempo a partir da posição real do áudio (escolher `kira` ou `rodio`)
-- [ ] M1-2 Tocar a música e exibir o tempo na tela (debug)
-- [ ] M1-3 Timeline de BPM/scroll: tabela `tempo → distância acumulada`
-- [ ] M1-4 Renderizar notas caindo em 4 lanes retas
-- [ ] M1-5 Input (D F J K) com timestamp e julgamento das notas simples
-- [ ] M1-6 Holds: cabeça, segurar e julgar a soltura
-- [ ] M1-7 HUD: score, combo, precisão, feedback de julgamento
-- [ ] M1-8 Tela de resultado
-- [ ] M1-9 Calibração de offset de áudio/input
+- [ ] M1-1 Conductor: time from the real audio position (choose `kira` or `rodio`)
+- [ ] M1-2 Play the song and show the time on screen (debug)
+- [ ] M1-3 BPM/scroll timeline: `time → accumulated distance` table
+- [ ] M1-4 Render notes falling in 4 straight lanes
+- [ ] M1-5 Input (D F J K) with timestamps and judgement of regular notes
+- [ ] M1-6 Holds: head, holding and judging the release
+- [ ] M1-7 HUD: score, combo, accuracy, judgement feedback
+- [ ] M1-8 Results screen
+- [ ] M1-9 Audio/input offset calibration
 
-## M2 — Lanes e linhas dinâmicas
+## M2 — Dynamic lanes and lines
 
-- [ ] M2-1 Interpolação por keyframes com easings
-- [ ] M2-2 Avaliar Bézier e pré-calcular tabela de pontos por lane
-- [ ] M2-3 Notas seguindo a curva da lane
-- [ ] M2-4 Judgement line móvel/rotacionada (lanes como filhas da line)
-- [ ] M2-5 Alpha das lanes (aparecer/sumir)
-- [ ] M2-6 Curvas que mudam durante a música (interpolar pontos de controle)
-- [ ] M2-7 Movimento ligado ao conductor (por beat)
+- [ ] M2-1 Keyframe interpolation with easings
+- [ ] M2-2 Evaluate Bézier curves and precompute a point table per lane
+- [ ] M2-3 Notes following the lane curve
+- [ ] M2-4 Moving/rotating judgement line (lanes as children of the line)
+- [ ] M2-5 Lane alpha (fade in/out)
+- [ ] M2-6 Curves that change during the song (interpolate control points)
+- [ ] M2-7 Movement tied to the conductor (per beat)
 
-## M3 — Efeitos
+## M3 — Effects
 
-- [ ] M3-1 Sistema de eventos do chart (disparo no tempo certo)
-- [ ] M3-2 Flash e shake de câmera
-- [ ] M3-3 Troca de paleta do fundo
-- [ ] M3-4 Pós-processamento via shaders (inversões, distorções)
-- [ ] M3-5 Transições de cenário
+- [ ] M3-1 Chart event system (fire at the right time)
+- [ ] M3-2 Flash and camera shake
+- [ ] M3-3 Background palette swap
+- [ ] M3-4 Post-processing via shaders (inversions, distortions)
+- [ ] M3-5 Scene transitions
 
-## M4 — Conteúdo e ferramentas
+## M4 — Content and tools
 
-- [ ] M4-1 Suporte a 7K
-- [ ] M4-2 Conversor `.osu` (mania) → JSON do jogo
-- [ ] M4-3 Menu de seleção de músicas
-- [ ] M4-4 Persistir configurações (offset, scroll speed, teclas)
-- [ ] M4-5 Editor de charts (marco grande, dividir em tarefas depois)
+- [ ] M4-1 7K support
+- [ ] M4-2 `.osu` (mania) → game JSON converter
+- [ ] M4-3 Song select menu
+- [ ] M4-4 Persist settings (offset, scroll speed, key bindings)
+- [ ] M4-5 Chart editor (large milestone, split into tasks later)
 
-## M5 — Polimento e lançamento
+## M5 — Polish and release
 
-- [ ] M5-1 Modificadores (Hidden, DT) e score acima de 1.000.000
-- [ ] M5-2 Playtests e ajuste das janelas de julgamento
-- [ ] M5-3 Build para Windows/Linux, ícone e página no itch.io/Steam
-- [ ] M5-4 Trailer e capturas
+- [ ] M5-1 Modifiers (Hidden, DT) and scores above 1,000,000
+- [ ] M5-2 Playtests and tuning of judgement windows
+- [ ] M5-3 Windows/Linux builds, icon and itch.io/Steam page
+- [ ] M5-4 Trailer and screenshots
 
-## Riscos a acompanhar
+## Risks to watch
 
-- Latência e sincronização de áudio (validar cedo, no M1-1/M1-2)
-- Escolha entre Macroquad e wgpu ao chegar no pós-processamento (M3-4)
-- Licença das músicas (usar apenas músicas livres nos exemplos)
+- Audio latency and synchronization (validate early, in M1-1/M1-2)
+- Macroquad vs wgpu decision when reaching post-processing (M3-4)
+- Music licensing (use only royalty-free songs in examples)

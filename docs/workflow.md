@@ -1,32 +1,32 @@
-# Fluxo de trabalho
+# Workflow
 
-Uma tarefa do kanban = uma issue = uma branch = um Pull Request.
+One roadmap task = one issue = one branch = one Pull Request.
 
-## Ao começar a trabalhar
+## When you start working
 
-1. No board do GitHub Projects, mova o card da tarefa para **Fazendo**.
-2. Atualize a `main` e crie a branch da tarefa:
+1. On the GitHub Projects board, move the task's card to **Doing**.
+2. Update `main` and create the task branch:
 
 ```bash
 git switch main
 git pull
-git switch -c feat/m1-1-conductor      # feat/<id-da-tarefa>-<nome-curto>
+git switch -c feat/m1-1-conductor      # feat/<task-id>-<short-name>
 ```
 
-Prefixos: `feat/` funcionalidade, `fix/` correção, `docs/` documentação, `chore/` configuração.
+Prefixes: `feat/` new feature, `fix/` bug fix, `docs/` documentation, `chore/` configuration.
 
-## Durante o trabalho
+## While working
 
-Faça commits pequenos e frequentes:
+Make small, frequent commits:
 
 ```bash
 git add -A
-git commit -m "feat(game): toca a música e lê a posição do áudio"
+git commit -m "feat(game): play the song and read the audio position"
 ```
 
-Formato da mensagem: `tipo(escopo): descrição` (ex.: `fix(core): corrige janela de release`).
+Message format: `type(scope): description` (e.g. `fix(core): correct release window`).
 
-## Antes de subir (evita o CI falhar)
+## Before pushing (avoids a failing CI)
 
 ```bash
 cargo fmt
@@ -34,27 +34,28 @@ cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 ```
 
-## Terminando a tarefa
+## Finishing the task
 
 ```bash
 git push -u origin feat/m1-1-conductor
 ```
 
-1. No GitHub, abra o **Pull Request** para a `main`.
-2. Na descrição, coloque `Closes #<número da issue>`.
-3. Espere o CI ficar verde ✅ (se falhar, corrija, dê push de novo e ele roda outra vez).
-4. Faça **Squash and merge** e apague a branch.
-5. A issue fecha sozinha e o card vai para **Feito**.
-6. Volte para a base e siga para a próxima tarefa:
+1. On GitHub, open a **Pull Request** into `main`.
+2. In the description, add `Closes #<issue number>`.
+3. Wait for CI to turn green ✅ (if it fails, fix it, push again and it runs once more).
+4. Use **Squash and merge** and delete the branch.
+5. The issue closes by itself and the card moves to **Done**.
+6. Go back to `main` and move on to the next task:
 
 ```bash
 git switch main
 git pull
 ```
 
-## Regras rápidas
+## Quick rules
 
-- Nunca dê push direto na `main`.
-- Branch curta: se a tarefa passar de 2 ou 3 dias, divida em duas no kanban.
-- `Cargo.lock` vai no commit; `target/` nunca.
-- Mudou dependência? `Cargo.toml` e `Cargo.lock` vão juntos no mesmo commit.
+- Never push directly to `main`.
+- Keep branches short: if a task takes more than 2–3 days, split it into two roadmap tasks.
+- Always create the new branch from `main`, not from another feature branch.
+- `Cargo.lock` is committed; `target/` never is.
+- Changed a dependency? Commit `Cargo.toml` and `Cargo.lock` together.

@@ -2,7 +2,7 @@
 name = "rhythm-chart"
 version.workspace = true
 edition.workspace = true
-description = "Formato de chart em JSON: estruturas, leitura e validação"
+description = "JSON chart format: structs, parsing and validation"
 
 [dependencies]
 serde = { workspace = true }

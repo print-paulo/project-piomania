@@ -2,6 +2,6 @@
 name = "rhythm-core"
 version.workspace = true
 edition.workspace = true
-description = "Regras do jogo: janelas de julgamento e pontuação (sem nenhuma dependência de render/áudio)"
+description = "Game rules: judgement windows and scoring (no render/audio dependencies)"
 
 [dependencies]

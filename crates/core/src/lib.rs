@@ -1,8 +1,8 @@
-//! Núcleo do jogo.
+//! Game core.
 //!
-//! Regra de ouro: este crate NÃO conhece render, janela nem áudio.
-//! Ele só recebe tempos (em ms) e devolve julgamentos e pontuação.
-//! Isso deixa tudo testável e permite trocar Macroquad por wgpu depois.
+//! Golden rule: this crate knows NOTHING about rendering, windows or audio.
+//! It only receives times (in ms) and returns judgements and scores.
+//! That keeps everything testable and lets us swap Macroquad for wgpu later.
 
 pub mod judgement;
 pub mod score;
