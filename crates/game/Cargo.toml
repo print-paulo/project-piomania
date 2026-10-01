@@ -8,3 +8,4 @@ description = "Game executable (window, input, rendering, audio)"
 rhythm-core = { workspace = true }
 rhythm-chart = { workspace = true }
 macroquad = { workspace = true }
+kira = { workspace = true }

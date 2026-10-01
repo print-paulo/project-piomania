@@ -4,8 +4,10 @@
 //! It only receives times (in ms) and returns judgements and scores.
 //! That keeps everything testable and lets us swap Macroquad for wgpu later.
 
+pub mod clock;
 pub mod judgement;
 pub mod score;
 
+pub use clock::SmoothClock;
 pub use judgement::{Judgement, JudgementWindows};
 pub use score::ScoreState;

@@ -1,6 +1,8 @@
 //! Entry point. For now: opens the window, loads the example chart
 //! and draws the judgement line + straight lanes (just to validate the setup).
 
+mod conductor;
+
 use macroquad::prelude::*;
 use rhythm_chart::Chart;
 use rhythm_core::JudgementWindows;
