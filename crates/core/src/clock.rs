@@ -3,13 +3,13 @@
 //! Audio backends report the playback position in chunks (one update per audio
 //! buffer, typically every 5-20 ms), so reading it once per frame gives a
 //! "staircase" instead of a smooth line. `SmoothClock` fills the gaps by
-//! advancing with a real-time clock between audio updates, and snaps back to the
-//! audio position whenever the two disagree too much.
+//! advancing with a real-time clock between audio updates. The estimate never
+//! runs more than `max_drift_ms` ahead of the last audio position: if the audio
+//! stalls, the clock holds there instead of jumping backwards.
 //!
 //! This crate knows nothing about audio: callers feed it plain numbers (ms).
 
-/// Maximum allowed difference (ms) between the estimate and the audio position
-/// before the estimate is snapped back to the audio position.
+/// Maximum amount (ms) the estimate may run ahead of the last audio position.
 pub const DEFAULT_MAX_DRIFT_MS: f64 = 30.0;
 
 #[derive(Debug, Clone)]
@@ -51,12 +51,9 @@ impl SmoothClock {
             return audio_ms;
         }
         let estimate = self.last_audio_ms + (wall_ms - self.last_change_wall_ms);
-        if (estimate - audio_ms).abs() > self.max_drift_ms {
-            // Estimate ran too far ahead of a stalled audio position: trust the audio.
-            audio_ms
-        } else {
-            estimate
-        }
+        // Hold at the limit instead of snapping back, so time never goes backwards
+        // just because the audio backend updates less often than expected.
+        estimate.min(audio_ms + self.max_drift_ms)
     }
 }
 
@@ -85,11 +82,26 @@ mod tests {
     }
 
     #[test]
-    fn snaps_to_audio_when_drift_is_too_large() {
+    fn holds_at_max_drift_when_audio_stalls() {
         let mut c = SmoothClock::default();
         c.update(100.0, 1000.0, true);
-        // 200 ms of wall time with a frozen audio position: trust the audio.
-        assert_eq!(c.update(100.0, 1200.0, true), 100.0);
+        // 200 ms of wall time with a frozen audio position: hold at audio + max drift.
+        assert_eq!(c.update(100.0, 1200.0, true), 130.0);
+    }
+
+    #[test]
+    fn never_goes_backwards_with_slow_audio_updates() {
+        // Audio position only advances every 40 ms; frames come at ~60 fps.
+        let mut c = SmoothClock::default();
+        let mut prev = f64::MIN;
+        let mut wall = 0.0_f64;
+        while wall < 2000.0 {
+            let audio = (wall / 40.0).floor() * 40.0;
+            let t = c.update(audio, wall, true);
+            assert!(t >= prev, "time went backwards: {prev} -> {t}");
+            prev = t;
+            wall += 1000.0 / 60.0;
+        }
     }
 
     #[test]
