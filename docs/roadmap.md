@@ -14,7 +14,7 @@ Task prefixes: `M0`, `M1`... (milestones) + number.
 
 ## M1 — 4K MVP (one song, straight lanes)
 
-- [ ] M1-1 Conductor: time from the real audio position (choose `kira` or `rodio`)
+- [x] M1-1 Conductor: time from the real audio position (choose `kira` or `rodio`)
 - [ ] M1-2 Play the song and show the time on screen (debug)
 - [ ] M1-3 BPM/scroll timeline: `time → accumulated distance` table
 - [ ] M1-4 Render notes falling in 4 straight lanes
