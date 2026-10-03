@@ -201,6 +201,9 @@ impl Chart {
         if self.timing.is_empty() {
             return bad("`timing` must have at least one point".into());
         }
+        if self.timing[0].time_ms != 0.0 {
+            return bad("first timing point must be at time_ms = 0".into());
+        }
         if self.timing.iter().any(|t| t.bpm <= 0.0) {
             return bad("every BPM must be greater than zero".into());
         }
@@ -234,6 +237,21 @@ impl Chart {
                     "lane {}: each path needs at least 2 points",
                     lane.index
                 ));
+            }
+            for w in lane.path.windows(2) {
+                // A Step easing jumps instantly to the next keyframe — no interpolation
+                // is performed, so mismatched point counts are fine. Any other easing
+                // requires both keyframes to share the same number of control points.
+                let needs_interp = w[1].easing != Easing::Step;
+                if needs_interp && w[0].points.len() != w[1].points.len() {
+                    return bad(format!(
+                        "lane {}: consecutive path keyframes must have the same number of points \
+                         ({} vs {}); use easing \"step\" if the curve degree should change",
+                        lane.index,
+                        w[0].points.len(),
+                        w[1].points.len(),
+                    ));
+                }
             }
         }
         for (i, n) in self.notes.iter().enumerate() {
@@ -285,5 +303,35 @@ mod tests {
             end_time_ms: Some(400.0),
         });
         assert!(chart.validate().is_err());
+    }
+
+    #[test]
+    fn rejects_timing_not_starting_at_zero() {
+        let mut chart: Chart = serde_json::from_str(EXAMPLE).unwrap();
+        // Move the only timing point away from time 0.
+        chart.timing[0].time_ms = 1000.0;
+        let err = chart.validate().unwrap_err();
+        assert!(
+            err.to_string().contains("time_ms = 0"),
+            "unexpected error: {err}"
+        );
+    }
+
+    #[test]
+    fn rejects_path_keyframes_with_mismatched_point_counts() {
+        let mut chart: Chart = serde_json::from_str(EXAMPLE).unwrap();
+        // Lane 0's last keyframe has 2 points (step back to straight after the cubic section).
+        // Push a new 4-point keyframe with Linear easing — this creates a 2→4 mismatch
+        // that requires interpolation, which is invalid.
+        chart.lanes[0].path.push(PathKeyframe {
+            time_ms: 20_000.0,
+            points: vec![[-0.18, -0.85], [-0.53, -0.55], [0.07, -0.25], [-0.18, 0.0]],
+            easing: Easing::Linear, // non-Step: interpolation would be attempted
+        });
+        let err = chart.validate().unwrap_err();
+        assert!(
+            err.to_string().contains("same number of points"),
+            "unexpected error: {err}"
+        );
     }
 }

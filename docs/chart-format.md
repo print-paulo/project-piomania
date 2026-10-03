@@ -26,7 +26,7 @@ Each lane has a `path`: a list of keyframes `{ time_ms, points, easing }`.
 
 - `points` are the control points of a **Bézier curve** in the judgement line's local space: 2 points = straight, 3 = quadratic, 4 = cubic.
 - The **first point** is where the note spawns; the **last point** is where it is judged.
-- Between two keyframes the points are interpolated, so the curve can change during the song (both keyframes must have the same number of points to be interpolated).
+- Between two keyframes the points are interpolated, so the curve can change during the song (both keyframes must have the same number of points to be interpolated; if changing the curve degree, use easing `"step"`).
 - `alpha` (optional) is a list of `{ time_ms, alpha, easing }` that makes the lane fade in and out.
 
 Each note travels along its lane's curve toward the end point; its position along the curve comes from the remaining distance to the judgement (which depends on BPM and scroll).
@@ -34,6 +34,8 @@ Each note travels along its lane's curve toward the end point; its position alon
 ## Easing
 
 `linear` (default), `in`, `out`, `in_out`, `step`.
+
+`step` holds the previous keyframe's value until the following keyframe's `time_ms`, then jumps to its value (no interpolation).
 
 ## Notes
 
@@ -50,7 +52,18 @@ Each note travels along its lane's curve toward the end point; its position alon
 
 ## Validation
 
-`Chart::from_json` rejects: a `format_version` other than 1, an empty `timing`, BPM ≤ 0, `keys` different from the number of lanes, a lane pointing to a missing line, a path with fewer than 2 points, a note in a missing lane, and a hold that ends before it starts.
+`Chart::from_json` enforces:
+
+- `format_version` must equal 1.
+- `timing` must contain at least one point, and the first timing point must be at `time_ms = 0`.
+- Every BPM value must be strictly greater than zero.
+- `judgement_lines` must not be empty, and each line must have at least one keyframe.
+- Number of `lanes` must match `metadata.keys`.
+- Each lane must reference an existing `judgement_line`.
+- Each lane must have at least one path keyframe, and each path keyframe must have at least 2 control points.
+- Consecutive path keyframes must share the same number of control points, unless the following keyframe uses `"step"` easing.
+- Notes must reference valid lanes (`0 <= lane < keys`).
+- Hold notes must have `end_time_ms > time_ms`.
 
 ## osu!mania compatibility plan
 
