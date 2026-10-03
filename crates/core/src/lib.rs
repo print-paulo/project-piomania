@@ -7,6 +7,7 @@
 pub mod clock;
 pub mod judgement;
 pub mod score;
+pub mod timeline;
 
 pub use clock::SmoothClock;
 pub use judgement::{Judgement, JudgementWindows};
