@@ -24,6 +24,7 @@ A **workspace** is a repository with several crates (Rust packages) that share o
 
 ```
 piomania/
+├── AGENTS.md             # intructions to ai agents
 ├── Cargo.toml            # workspace root + shared dependency versions
 ├── crates/
 │   ├── core/             # rules: judgement windows and scoring (no render/audio)
@@ -32,6 +33,7 @@ piomania/
 ├── charts/example/       # example chart
 └── docs/
     ├── chart-format.md   # chart format specification
+    ├── design-intent.md  # intentional design choices
     ├── roadmap.md        # task backlog by milestone
     └── workflow.md       # git/PR workflow
 ```
