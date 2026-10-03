@@ -16,7 +16,7 @@ Task prefixes: `M0`, `M1`... (milestones) + number.
 
 - [x] M1-1 Conductor: time from the real audio position (choose `kira` or `rodio`)
 - [ ] M1-2 Play the song and show the time on screen (debug)
-- [ ] M1-3 BPM/scroll timeline: `time → accumulated distance` table
+- [x] M1-3 BPM/scroll timeline: `time → accumulated distance` table
 - [ ] M1-4 Render notes falling in 4 straight lanes
 - [ ] M1-5 Input (D F J K) with timestamps and judgement of regular notes
 - [ ] M1-6 Holds: head, holding and judging the release
