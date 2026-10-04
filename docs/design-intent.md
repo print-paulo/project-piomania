@@ -60,6 +60,7 @@ Why the code works the way it does. These are deliberate decisions: do not "fix"
 
 - Run from the repository root (the chart path is relative).
 - Early tasks are debug-oriented. The window title and HUD text are placeholders.
+- VISIBLE_DISTANCE = 800.0 — chosen as a placeholder constant (800 ms of notes visible at speed 1.0), yet to be player configurable.
 
 ## Known false alarms (do not report these)
 
