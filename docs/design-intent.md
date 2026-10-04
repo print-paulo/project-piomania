@@ -1,6 +1,6 @@
 # Design intent
 
-Why the code works the way it does. These are deliberate decisions: do not "fix" them without asking. When one changes, update this file in the same change.
+Why the code works the way it does. These are deliberate decisions: do not "fix" them without asking. When one changes, update this file in the same change. Everything below "Pending decisions" is the exception: those are unconfirmed proposals made by agents, waiting for the maintainer.
 
 ## Project-wide principles
 
@@ -67,3 +67,11 @@ Why the code works the way it does. These are deliberate decisions: do not "fix"
 - `is_expired` using `good_ms` instead of `miss_ms`.
 - Division by zero in `ScoreState::score`: guarded by the `total_objects == 0` early return.
 - "CI has no Windows runner": the README's Windows note is about local builds only.
+
+## Pending decisions (agent-proposed, not confirmed)
+
+Entries here were written by agents while working on a task. They are proposals, not settled intent: the maintainer confirms one by moving it into the matching module section above (or rejects it by deleting it). Agents may add entries but must not edit confirmed sections.
+
+Format: `- **<area>: <decision>.** Why: <reason>. Alternatives: <rejected options>. Task: <roadmap id>. Status: proposed`
+
+(none yet)

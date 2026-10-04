@@ -5,7 +5,7 @@ Standing instructions for AI coding agents in this repository. Humans: see `READ
 ## Read first
 
 1. This file (always).
-2. `docs/design-intent.md` BEFORE touching, reviewing or documenting any code. It records why each module works the way it does. Anything listed there is intentional: do not report it as a bug and do not "fix" it. If you believe it is wrong, say so as a question and wait; do not change it.
+2. `docs/design-intent.md` BEFORE touching, reviewing or documenting any code. It records why each module works the way it does. Anything listed there is intentional: do not report it as a bug and do not "fix" it. If you believe it is wrong, say so as a question and wait; do not change it. Entries under "Pending decisions" are unconfirmed proposals from earlier agents: respect them, but you may question them.
 3. `docs/roadmap.md` to see which task is current. Work only on the task you were given.
 
 ## Project
@@ -44,6 +44,7 @@ crates/game/    executable (package name: piomania): window, input, render, audi
 - Do not touch `.github/`, dependency lists, or `docs/roadmap.md` unless the task is about them.
 - Never delete or weaken a test to make it pass. If a test looks wrong, explain why and ask.
 - If the task is ambiguous, or conflicts with `docs/design-intent.md`, stop and ask. Do not guess.
+- One exception to every scope limit above, including limits written in the task prompt: `docs/design-intent.md` may always be edited, and only to record design decisions (next section).
 
 ## Verify, do not assume
 
@@ -52,6 +53,17 @@ crates/game/    executable (package name: piomania): window, input, render, audi
 - Never say tests, clippy or fmt "pass" unless you ran them and saw the output. Say "not run" otherwise.
 - Removing `#![allow(dead_code)]` makes `-D warnings` fail on unused items. Use per-item `#[allow(dead_code)] // TODO(<task-id>)` for items a later task will use.
 - Do not add comments or docs that state unverified facts as verified (for example, the judgement window numbers are from memory and marked TODO).
+
+## Recording design decisions
+
+A design decision is a choice that neither the task nor `docs/design-intent.md` already settled and that changes behavior or a public API: edge-case behavior, units or signs, default values, error handling, a new field or format rule, a trade-off between alternatives, or a deviation from the task description. Formatting, local names and private helper structure are not decisions.
+
+When you make one:
+1. In the same change as the code, add one entry under "Pending decisions" at the end of `docs/design-intent.md`:
+   `- **<area>: <decision>.** Why: <reason>. Alternatives: <rejected options>. Task: <roadmap id>. Status: proposed`
+2. Never edit or delete a confirmed entry, and never mark your own entry as confirmed: the maintainer moves entries out of "Pending decisions". If your change would contradict a confirmed entry, stop and ask instead.
+3. If the task needed no such decision, add nothing. No filler entries.
+4. List every new entry in your final report.
 
 ## Code conventions
 
@@ -77,7 +89,7 @@ crates/game/    executable (package name: piomania): window, input, render, audi
 
 - Edit only the file(s) named. Do not rewrite sections you were not asked to change, and do not create long new documents.
 - Docs must match the code. If unsure, read the code or ask.
-- When a design decision changes, update `docs/design-intent.md` in the same change.
+- When the maintainer asks you to change an existing decision, update its entry in `docs/design-intent.md` in the same change.
 
 ## Final report format
 
@@ -86,3 +98,4 @@ End every task with:
 2. Commands run with their real results (or "not run").
 3. Anything you were unsure about or did not verify.
 4. Any design-intent conflict you noticed but did not act on.
+5. Design decisions you recorded in `docs/design-intent.md` (or "none").
