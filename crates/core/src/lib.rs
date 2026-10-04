@@ -12,3 +12,4 @@ pub mod timeline;
 pub use clock::SmoothClock;
 pub use judgement::{Judgement, JudgementWindows};
 pub use score::ScoreState;
+pub use timeline::{ScrollPoint, ScrollTimeline};
